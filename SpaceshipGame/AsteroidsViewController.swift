@@ -12,11 +12,20 @@ class AsteroidsViewController: UIViewController {
     
     private var asteriodField: AsteroidFieldView!
     
+    private var asteroidBehavior = AsteroidBehavior()
+    
     private lazy var animator: UIDynamicAnimator = UIDynamicAnimator(referenceView:self.asteriodField)
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         initializeIfNeeded()
+        animator.addBehavior(asteroidBehavior)
+        asteroidBehavior.pushAllAsteriods()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        animator.removeBehavior(asteroidBehavior)
     }
     
     override func viewWillLayoutSubviews() {
@@ -29,6 +38,7 @@ class AsteroidsViewController: UIViewController {
             asteriodField = AsteroidFieldView(frame: CGRect(center: view.bounds.mid, size: view.bounds.size))
             view.addSubview(asteriodField)
             asteriodField.addAsteroids(count: Constants.initialAsteroidCount)
+            asteriodField.asteroidBehavior = asteroidBehavior
         }
     }
 }
