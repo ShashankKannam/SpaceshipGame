@@ -35,11 +35,23 @@ class AsteroidBehavior: UIDynamicBehavior, UICollisionBehaviorDelegate {
         return behavior
     }()
     
+    var speedLimit: CGFloat = 0.0
+    
     override init() {
         super.init()
         addChildBehavior(collider)
         addChildBehavior(physicsBehavior)
         addChildBehavior(acceleration)
+        
+        physicsBehavior.action = { [weak self] in
+            for asteroid in self?.asteriods ?? [] {
+                let velocity = self!.physicsBehavior.linearVelocity(for: asteroid)
+                let excessHorizontalVelocity = min(self!.speedLimit - velocity.x, 0)
+                let excessVerticalVelocity = min(self!.speedLimit - velocity.y, 0)
+                self!.physicsBehavior.addLinearVelocity(CGPoint(x: excessHorizontalVelocity, y: excessVerticalVelocity), for: asteroid)
+            }
+        }
+
     }
     
     private var collisionHandlers = [String:() -> ()]()
