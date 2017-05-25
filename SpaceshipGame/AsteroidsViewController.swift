@@ -11,6 +11,7 @@ import UIKit
 class AsteroidsViewController: UIViewController {
     
     private var asteriodField: AsteroidFieldView!
+    private var spaceship: SpaceshipView!
     
     private var asteroidBehavior = AsteroidBehavior()
     
@@ -31,13 +32,57 @@ class AsteroidsViewController: UIViewController {
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         asteriodField?.center = view.bounds.mid
+        repositionShip()
+    }
+    
+    @IBAction func fire(_ sender: UILongPressGestureRecognizer) {
+        switch sender.state {
+        case .began,.changed:
+            spaceship.direction = (sender.location(in: view) - spaceship.center).angle
+            burn()
+        case .ended: endBurn()
+        default:
+            break
+        }
+    }
+    
+    private func burn() {
+        spaceship.enginesAreFiring = true
+        asteroidBehavior.acceleration.angle = spaceship.direction - CGFloat.pi
+        asteroidBehavior.acceleration.magnitude = Constants.burnAcceleration
+    }
+    
+    private func endBurn() {
+        spaceship.enginesAreFiring = false
+        asteroidBehavior.acceleration.magnitude = 0.0
+    }
+    
+    private func repositionShip() {
+        if asteriodField != nil {
+            spaceship.center = asteriodField.center
+            asteroidBehavior.addBoundary(spaceship.shieldBoundary(in: asteriodField), named: Constants.shipBoundaryName){
+                [weak self] in
+                if let spaceship = self?.spaceship, !((self?.spaceship?.shieldIsActive)!) {
+                    self?.spaceship.shieldIsActive = true
+                    spaceship.shieldLevel -= Constants.Shield.activationCost
+                    Timer.scheduledTimer(withTimeInterval: Constants.Shield.duration, repeats: false) { timer in
+                        self?.spaceship.shieldIsActive = false
+                        spaceship.shieldLevel = spaceship.shieldLevel == 0 ? 100 : spaceship.shieldLevel
+                    }
+                }
+            }
+        }
     }
     
     private func initializeIfNeeded() {
         if asteriodField == nil {
-            asteriodField = AsteroidFieldView(frame: CGRect(center: view.bounds.mid, size: view.bounds.size))
+            asteriodField = AsteroidFieldView(frame: CGRect(center: view.bounds.mid, size: view.bounds.size * Constants.asteroidFieldMagnitude))
             view.addSubview(asteriodField)
-            asteriodField.addAsteroids(count: Constants.initialAsteroidCount)
+            let shipSize = view.bounds.size.minEdge * Constants.shipSizeToMinBoundsEdgeRatio
+            spaceship = SpaceshipView(frame: CGRect(squareCenteredAt: asteriodField.center, size: shipSize)) 
+            view.addSubview(spaceship)
+            repositionShip()
+            asteriodField.addAsteroids(count: Constants.initialAsteroidCount, exclusionZone: spaceship.convert(spaceship.bounds, to: asteriodField))
             asteriodField.asteroidBehavior = asteroidBehavior
         }
     }

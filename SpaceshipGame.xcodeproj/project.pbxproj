@@ -67,13 +67,13 @@
 			isa = PBXGroup;
 			children = (
 				987BB99E1ED75DDA002D5D03 /* Supporting files */,
-				987BB98B1ED75AD4002D5D03 /* AsteroidsViewController.swift */,
 				987BB98D1ED75AD4002D5D03 /* Main.storyboard */,
 				987BB99F1ED75E8F002D5D03 /* AsteroidFieldView.swift */,
 				987BB9A01ED75E8F002D5D03 /* AsteroidView.swift */,
 				987BB9A11ED75E8F002D5D03 /* CoreGraphicsExtensions.swift */,
 				987BB9A21ED75E8F002D5D03 /* SpaceshipView.swift */,
 				989CFFFD1ED769C900026C00 /* AsteroidBehavior.swift */,
+				987BB98B1ED75AD4002D5D03 /* AsteroidsViewController.swift */,
 			);
 			path = SpaceshipGame;
 			sourceTree = "<group>";
